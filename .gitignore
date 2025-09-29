@@ -1,0 +1,5 @@
+Advanced_Embedded_Software/
+venv/
+.venv/
+Advanced_hardware_design/
+*.csv

@@ -1,0 +1,15 @@
+LTspice 24.1.5 for Windows
+Circuit: C:\Users\minis\Documents\HEIA_FR\Master\Advanced_Electronic_Design\cascode_amplifier.net
+Start Time: Mon Sep 22 11:41:36 2025
+solver = Normal
+Maximum thread count: 8
+tnom = 27
+temp = 27
+method = modified trap
+Direct Newton iteration for .op point succeeded.
+Total elapsed time: 0.055 seconds.
+
+Files loaded:
+C:\Users\minis\Documents\HEIA_FR\Master\Advanced_Electronic_Design\cascode_amplifier.net
+C:\Users\minis\AppData\Local\LTspice\lib\cmp\standard.bjt
+

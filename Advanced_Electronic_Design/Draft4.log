@@ -1,0 +1,15 @@
+LTspice 24.1.5 for Windows
+Circuit: C:\Users\minis\Documents\HEIA_FR\Master\Advanced_Electronic_Design\Draft4.net
+Start Time: Mon Sep 22 13:23:13 2025
+solver = Normal
+Maximum thread count: 8
+tnom = 27
+temp = 27
+method = modified trap
+Direct Newton iteration for .op point succeeded.
+Total elapsed time: 0.069 seconds.
+
+Files loaded:
+C:\Users\minis\Documents\HEIA_FR\Master\Advanced_Electronic_Design\Draft4.net
+C:\Users\minis\AppData\Local\LTspice\lib\cmp\standard.bjt
+
