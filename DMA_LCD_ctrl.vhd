@@ -39,7 +39,8 @@ architecture rtl of DMA_LCD_ctrl is
 	-- Signals
 	signal lcd_state_s 		: lcd_state;
 	signal dma_state_s 		: dma_state;
-	signal pointer_img_s	: std_logic_vector(31 downto 0);
+	signal offset_img_s		: std_logic_vector(31 downto 0);
+	signal counter_offset_img_s	: unsigned(31 downto 0);
 	signal lcd_data_avalon_s	: std_logic_vector(15 downto 0);
 	signal lcd_data_dma_s		: std_logic_vector(15 downto 0);
 	signal lcd_data_sel_s		: std_logic;
@@ -98,12 +99,12 @@ begin
 			if avalon_cs = '1' and avalon_wr = '1' then
 				case avalon_address is 
 					when "000" => 
-						lcd_data_avalon_s	<= avalon_write_data;		--> execute by initLCD() function
+						lcd_data_avalon_s	<= avalon_write_data(15 downto 0);		--> execute by initLCD() function
 						LCD_D_C_n 	<= '0'; -- cmd LCD
 						LCD_CS_n	<= '0';
 						lcd_data_sel_s <= SEND_BY_AVALON;
 					when "001" => 
-						lcd_data_avalon_s	<= avalon_write_data;
+						lcd_data_avalon_s	<= avalon_write_data(15 downto 0);
 						LCD_CS_n	<= '0';
 						lcd_data_sel_s <= SEND_BY_AVALON;
 					when "010" => 
@@ -195,8 +196,9 @@ begin
 	stateDMA_FSM : process(clk, reset_n)
 	begin
 		if reset_n = '0' then
-			dma_state_s		<= IDLE;
-			pointer_img_s 	<= reg_pointer_img;
+			dma_state_s				<= IDLE;
+			offset_img_s			<= (others => '0');
+			counter_offset_img_s 	<= (others => '0');
 		elsif rising_edge(clk) then
 			case dma_state_s is
 				when IDLE			=>
@@ -214,12 +216,13 @@ begin
 				when READ_MEM		=>
 					dma_state_s		<= UPDATE_MEM;
 				when UPDATE_MEM		=>
-					if (unsigned(reg_pointer_img) + unsigned(reg_size_img)) <= unsigned(pointer_img_s) then
-						pointer_img_s <= (others => '0');
-						dma_state_s	<= END_TR;
-					else
-						pointer_img_s	<= std_logic_vector(unsigned(pointer_img_s) + to_unsigned(OFFSET_PTR, pointer_img_s'length));
+					if counter_offset_img_s < unsigned(reg_size_img) then
+						counter_offset_img_s <= counter_offset_img_s + 1;
+						offset_img_s	<= std_logic_vector(unsigned(offset_img_s) + to_unsigned(OFFSET_PTR, offset_img_s'length));
 						dma_state_s	<= WRITE_DMA_LCD;
+					else
+						offset_img_s	<= (others => '0');
+						dma_state_s	<= END_TR;
 					end if;
 				when WRITE_DMA_LCD	=>
 					dma_state_s		<= WAIT_MEM;
@@ -234,7 +237,7 @@ begin
 		end if;
 	end process;
 
-	outputDMA_FSM : process(dma_state_s, pointer_img_s, master_readdata)
+	outputDMA_FSM : process(dma_state_s, master_readdata)
 	begin
 
 		master_read 	<= '0';
@@ -257,7 +260,7 @@ begin
 		end case;
 	end process;
 
-	master_address	<= pointer_img_s;
+	master_address	<= std_logic_vector(unsigned(reg_pointer_img) + unsigned(offset_img_s));
 	-- Asynchronous writing (LCD + DMA) --> LCD is written only when wr_n = 0
 	LCD_data	<= lcd_data_avalon_s when lcd_data_sel_s = SEND_BY_AVALON else lcd_data_dma_s;		-- donnees du LCD viennent soit de la DMA, soit directement du bus Avalon (initLCD)
 	LCD_WR_n	<= lcd_wr_n_procD and lcd_wr_n_procL;									-- 2 process ecrivent en meme temps dans le LCD
