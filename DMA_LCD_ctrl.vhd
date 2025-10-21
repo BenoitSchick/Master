@@ -6,7 +6,7 @@ use IEEE.numeric_std.all;
 entity DMA_LCD_ctrl is
 	port (
 		clk               		: in    std_logic;
-		reset             		: in    std_logic;         
+		reset_n	             	: in    std_logic;         
 		-- master interface
  		master_address	  		: out  std_logic_vector(31 downto 0);
 		master_read	  			: out std_logic;
@@ -40,8 +40,12 @@ architecture rtl of DMA_LCD_ctrl is
 	signal lcd_state_s 		: lcd_state;
 	signal dma_state_s 		: dma_state;
 	signal pointer_img_s	: std_logic_vector(31 downto 0);
-	signal lcd_data_s		: std_logic_vector(15 downto 0);
+	signal lcd_data_avalon_s	: std_logic_vector(15 downto 0);
+	signal lcd_data_dma_s		: std_logic_vector(15 downto 0);
+	signal lcd_data_sel_s		: std_logic;
 	signal lcd_count_wr_s	: unsigned(2 downto 0);
+	signal lcd_wr_n_procL	: std_logic;
+	signal lcd_wr_n_procD	: std_logic;
 	--signal counter_lcd_s	: unsigned(2 downto 0);
 	
 
@@ -59,6 +63,8 @@ architecture rtl of DMA_LCD_ctrl is
 	constant IRQ_ACK_BIT 	: INTEGER := 2;
 	constant NB_CYCLE_WR	: INTEGER := 4;		-- number of clock cycle to write to the LCD
 	constant OFFSET_PTR		: INTEGER := 2;		-- offset applied to the image pointer
+	constant SEND_BY_AVALON : std_logic := '0';
+	constant SEND_BY_DMA	: std_logic := '1';
 	
 
 begin
@@ -76,27 +82,30 @@ begin
 	
 	
 	-- Registry write (slave interface)		 
-	writeReg : process(clk, reset)
+	writeReg : process(clk, reset_n)
 	begin
-		if reset = '1' then
-			lcd_data_s		<= (others => '0');
-			pointer_img_s	<= (others => '0');
+		if reset_n = '0' then
+			--lcd_data_dma_s	<= (others => '0');
+			--lcd_data_avalon_s		<= (others => '0');
 			reg_pointer_img <= (others => '0');
 			reg_size_img	<= (others => '0');
 			reg_control_reg	<= (others => '0');
 			LCD_D_C_n 		<= '1';
 			LCD_CS_n		<= '1';
-
+			lcd_data_sel_s	<= '0';
+			
 		elsif rising_edge(clk) then
 			if avalon_cs = '1' and avalon_wr = '1' then
 				case avalon_address is 
 					when "000" => 
-						lcd_data_s	<= avalon_write_data;		--> execute by initLCD() function
+						lcd_data_avalon_s	<= avalon_write_data;		--> execute by initLCD() function
 						LCD_D_C_n 	<= '0'; -- cmd LCD
 						LCD_CS_n	<= '0';
+						lcd_data_sel_s <= SEND_BY_AVALON;
 					when "001" => 
-						lcd_data_s	<= avalon_write_data;
+						lcd_data_avalon_s	<= avalon_write_data;
 						LCD_CS_n	<= '0';
+						lcd_data_sel_s <= SEND_BY_AVALON;
 					when "010" => 
 						reg_pointer_img <= avalon_write_data;	--> execute by initDMA() function
 						LCD_CS_n	<= '0';
@@ -106,6 +115,7 @@ begin
 					when "100" => 
 						reg_control_reg	<= avalon_write_data;
 						LCD_CS_n	<= '0';
+						lcd_data_sel_s <= SEND_BY_DMA;
 					when others => null;
 				end case;
 			end if;
@@ -114,9 +124,9 @@ begin
 
 
 	-- Registry read (slave interface)
-	readReg : process(clk, reset)
+	readReg : process(clk, reset_n)
 	begin
-		if reset = '1' then
+		if reset_n = '0' then
 			avalon_read_data <= (others => '0');
 		elsif rising_edge(clk) then
 			if avalon_cs = '1' and avalon_rd = '1' then
@@ -136,9 +146,9 @@ begin
 	--######################################################## 
 
 
-	stateLCD_FSM : process(clk, reset)
+	stateLCD_FSM : process(clk, reset_n)
 	begin
-		if reset = '1' then
+		if reset_n = '0' then
 			lcd_count_wr_s 	<= (others => '0');
 			lcd_state_s		<= IDLE_LCD;
 
@@ -167,11 +177,11 @@ begin
 	outputLCD_FSM : process(lcd_state_s, avalon_address, avalon_wr, avalon_cs)
 	begin
 		case lcd_state_s is
-			when IDLE_LCD	=> LCD_WR_n	<= '1';
+			when IDLE_LCD	=> lcd_wr_n_procL <= '1';
 			when START_LCD	=>
-				LCD_WR_n	<= '0';
+				lcd_wr_n_procL <= '0';
 				--LCD_data	<= lcd_data_s;
-			when WRITE_LCD	=> LCD_WR_n <= '1';
+			when WRITE_LCD	=> lcd_wr_n_procL <= '1';
 		end case;
 	end process;
 
@@ -182,9 +192,9 @@ begin
 	--######################################################## 
 
 
-	stateDMA_FSM : process(clk, reset)
+	stateDMA_FSM : process(clk, reset_n)
 	begin
-		if reset = '1' then
+		if reset_n = '0' then
 			dma_state_s		<= IDLE;
 			pointer_img_s 	<= reg_pointer_img;
 		elsif rising_edge(clk) then
@@ -204,11 +214,11 @@ begin
 				when READ_MEM		=>
 					dma_state_s		<= UPDATE_MEM;
 				when UPDATE_MEM		=>
-					pointer_img_s	<= std_logic_vector(unsigned(pointer_img_s) + to_unsigned(OFFSET_PTR, pointer_img_s'length));
 					if (unsigned(reg_pointer_img) + unsigned(reg_size_img)) <= unsigned(pointer_img_s) then
 						pointer_img_s <= (others => '0');
 						dma_state_s	<= END_TR;
 					else
+						pointer_img_s	<= std_logic_vector(unsigned(pointer_img_s) + to_unsigned(OFFSET_PTR, pointer_img_s'length));
 						dma_state_s	<= WRITE_DMA_LCD;
 					end if;
 				when WRITE_DMA_LCD	=>
@@ -227,29 +237,30 @@ begin
 	outputDMA_FSM : process(dma_state_s, pointer_img_s, master_readdata)
 	begin
 
-		master_read <= '0';
-		LCD_WR_n	<= '1';
+		master_read 	<= '0';
+		lcd_wr_n_procD 	<= '1';
 
 		case dma_state_s is
 			when IDLE			=>
 				end_of_transaction_irq <= '0';
 			when WAIT_MEM		=>
-				master_address	<= pointer_img_s;
+				--master_address	<= pointer_img_s;
 			when READ_MEM		=>
 				master_read		<= '1';
-				lcd_data_s		<= master_readdata;
+				lcd_data_dma_s	<= master_readdata;
 			when UPDATE_MEM		=>
 			when WRITE_DMA_LCD	=>
-				LCD_WR_n		<= '0';		-- write pixel image to LCD
+				lcd_wr_n_procD	<= '0';		-- write pixel image to LCD
 			when END_TR			=>
 				end_of_transaction_irq <= '1';
 			when others => null;
 		end case;
 	end process;
 
-
+	master_address	<= pointer_img_s;
 	-- Asynchronous writing (LCD + DMA) --> LCD is written only when wr_n = 0
-	LCD_data	<= lcd_data_s;
+	LCD_data	<= lcd_data_avalon_s when lcd_data_sel_s = SEND_BY_AVALON else lcd_data_dma_s;		-- donnees du LCD viennent soit de la DMA, soit directement du bus Avalon (initLCD)
+	LCD_WR_n	<= lcd_wr_n_procD and lcd_wr_n_procL;									-- 2 process ecrivent en meme temps dans le LCD
 
 end architecture rtl; 
 
