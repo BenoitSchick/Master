@@ -49,24 +49,17 @@ architecture rtl of DMA_LCD_interface is
 	--signal lcd_wr_n_procL	: std_logic;
 	--signal lcd_wr_n_procD	: std_logic;
 	signal dma_done_s				: std_logic;
-	--signal transfer_done_s			: std_logic;
 	signal start_transfert_s		: std_logic;
 	signal ack_s					: std_logic;
 	signal irq_s					: std_logic;
 	signal dma_state_prev_s 		: dma_state;
 	signal lcd_busy_s				: std_logic;
 
-	--signal counter_lcd_s	: unsigned(2 downto 0);
-	
 
 	--DMA registers
 	signal reg_pointer_img 	: std_logic_vector(31 downto 0);
 	signal reg_size_img		: unsigned(31 downto 0);
-	
-	
-
-	--signal current_state_s, next_state_s : dma_state;
-	
+		
 	
 
 begin
@@ -189,7 +182,6 @@ begin
 	begin
 		if reset_n = '0' then
 			lcd_state_s		<= IDLE_LCD;
-			--lcd_data_s		<= (others => '0');
 
 		elsif rising_edge(clk) then
 
