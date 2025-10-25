@@ -129,7 +129,7 @@
 	 set_location_assignment PIN_H6   -to LEDS[29]
 	 set_location_assignment PIN_H5   -to LEDS[30]
 	 set_location_assignment PIN_J6   -to LEDS[31]
-	 
+	 	 
 #### BUTTONS
 
       set_location_assignment PIN_H11  -to BUTTONS[0]	
@@ -157,12 +157,16 @@
 	 
 #### LCD
 
-     set_location_assignment PIN_A18  -to LCD_RESETn
-	 set_location_assignment PIN_G14  -to LCD_CSn
+     # set_location_assignment PIN_A18  -to LCD_RESETn
+	 set_location_assignment PIN_A18  -to GPIO_LCD[0]
+	 #set_location_assignment PIN_G14  -to GPIO_LCD[1]
+      set_location_assignment PIN_G14  -to LCD_CSn
 	 set_location_assignment PIN_H14  -to LCD_D_Cn
 	 set_location_assignment PIN_G15  -to LCD_WRn
-	 set_location_assignment PIN_H15  -to LCD_RDn
-	 set_location_assignment PIN_G13  -to IM0
+	 set_location_assignment PIN_G13  -to GPIO_LCD[2]
+	# set_location_assignment PIN_G13  -to IM0
+     set_location_assignment PIN_H15  -to LCD_RDn
+      #set_location_assignment PIN_H15  -to GPIO_LCD[3]
 	 
 	 set_location_assignment PIN_G16  -to LCD_DATA[0]
 	 set_location_assignment PIN_E12  -to LCD_DATA[1]
