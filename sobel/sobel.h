@@ -10,6 +10,7 @@
 
 
 void init_sobel_arrays(int width , int height);
+void sobel_complete(unsigned char *source, short threshold);
 void sobel_x( unsigned char *source );
 void sobel_x_with_rgb( unsigned char *source );
 void sobel_y( unsigned char *source );

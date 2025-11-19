@@ -56,7 +56,7 @@ int main()
   int width = cam_get_xsize()>>1;
   int height = cam_get_ysize();
 
-  static short *sobel_x_result;
+  /*static short *sobel_x_result;
   static short *sobel_y_result;
   sobel_x_result = (short *)malloc(width*height*sizeof(short));
   sobel_y_result = (short *)malloc(width*height*sizeof(short));
@@ -64,10 +64,10 @@ int main()
   for (int loop = 0 ; loop < width*height ; loop++) {
   	sobel_x_result[loop] = 0;
   	sobel_y_result[loop] = 0;
-  }
+  }*/
 
-  const char gx_array[9] = {-1,0,1,-2,0,2,-1,0,1};
-  const char gy_array[9] = {1,2,1,0,0,0,-1,-2,-1};
+  //const char gx_array[9] = {-1,0,1,-2,0,2,-1,0,1};
+  //const char gy_array[9] = {1,2,1,0,0,0,-1,-2,-1};
 
   /*const char gx_array[3][3] = {{-1,0,1},
                                {-2,0,2},
@@ -98,7 +98,7 @@ int main()
 		    		                  cam_get_xsize()>>1,
 		    		                  cam_get_ysize());
 		      	  	  printf("mode 1 \n");
-		               grayscale = get_grayscale_picture();	//récupère l'image en niveau de gris
+		               grayscale = get_grayscale_picture();	//rï¿½cupï¿½re l'image en niveau de gris
 
 		               transfer_LCD_with_dma(&grayscale[16520],	//affiche l'image en niveau de gris sur le LCD
 		      		                	cam_get_xsize()>>1,
@@ -143,7 +143,7 @@ int main()
 		    	  end_conv_grayscale = alt_timestamp();
 		      printf("mode 3 \n");
 
-		      	  	   grayscale = get_grayscale_picture();		//récupère l'image en niveau de gris
+		      	  	   grayscale = get_grayscale_picture();		//rï¿½cupï¿½re l'image en niveau de gris
 
 
 		      	  	   start_sobel_x = alt_timestamp();			//applique filtre de sobel sur image en niveaux de gris
@@ -155,8 +155,8 @@ int main()
 		               end_sobel_y = alt_timestamp();
 
 
-		               image = GetSobel_rgb();				  //recupère image filtrée avec filtre de sobel
-		               transfer_LCD_with_dma(&image[16520],  //affiche l'image filtrée sur le LCD
+		               image = GetSobel_rgb();				  //recupï¿½re image filtrï¿½e avec filtre de sobel
+		               transfer_LCD_with_dma(&image[16520],  //affiche l'image filtrï¿½e sur le LCD
 		      		                	cam_get_xsize()>>1,
 		      		                	cam_get_ysize(),0);
 		      	  	   if ((current_mode&DIPSW_SW8_MASK)!=0) {
@@ -174,7 +174,7 @@ int main()
 	                                  cam_get_ysize());
 		    	  end_conv_grayscale = alt_timestamp();
 
-		    	  grayscale = get_grayscale_picture();			//récupère l'image en niveau de gris
+		    	  grayscale = get_grayscale_picture();			//rï¿½cupï¿½re l'image en niveau de gris
 
 
                       //start_sobel_x = alt_timestamp();			//applique filtre de sobel sur image en niveaux de gris
@@ -251,7 +251,7 @@ int main()
 
 
                        grayscale=GetSobelResult();				//applique le filtre de sobel sur l'image (grayscale)
-		               transfer_LCD_with_dma(&grayscale[16520], //affiche l'image filtrée sur le LCD
+		               transfer_LCD_with_dma(&grayscale[16520], //affiche l'image filtrï¿½e sur le LCD
 		      		                	cam_get_xsize()>>1,
 		      		                	cam_get_ysize(),1);
 		      	  	   if ((current_mode&DIPSW_SW8_MASK)!=0) {
