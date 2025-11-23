@@ -29,8 +29,8 @@ alt_u32 end_conv_grayscale = 0;
 alt_u32 start_sobel_threshold = 0;
 alt_u32 end_sobel_threshold = 0;
 
-int const H_SUBIMG = 32; //nbre de pixels height de la subimage
-int const W_SUBIMG = 32; //nbre de pixels width de la subimage
+const int H_SUBIMG = 32; //nbre de pixels height de la subimage
+const int W_SUBIMG = 32; //nbre de pixels width de la subimage
 
 int main()
 {
@@ -57,7 +57,7 @@ int main()
   build_LUT_rgb_to_gray(cam_get_xsize()>>1,cam_get_ysize()); // construit une LUT pour optimiser la conversion rgb to grayscale
   	  	  	  	  	  	   // qui se fera hors de la boucle infini --> gain de performances
 
-  alt_timestamp_start();
+
 
   //Declaration for inline function sobel_x & sobel_y
   int width = cam_get_xsize()>>1;
@@ -65,6 +65,7 @@ int main()
 
 
   do {
+	  alt_timestamp_start();
 	  if (new_image_available() != 0) {
 		  if (current_image_valid()!=0) {
 			  current_mode = DIPSW_get_value();
@@ -81,21 +82,28 @@ int main()
 		      	  	   }
 
 		      	  	   break;
-		      case 1 : conv_grayscale((void *)image,		//convertit l'image en niveaux de gris
+		      case 1 :
+
+		    	  /*conv_grayscale((void *)image,		//convertit l'image en niveaux de gris
 		    		                  cam_get_xsize()>>1,
-		    		                  cam_get_ysize());
-		      	  	  printf("mode 1 \n");
-		               grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
+		    		                  cam_get_ysize());*/
+		    	  for (int y = 0; y < height; y += H_SUBIMG) {
+		    		  for (int x = 0; x < width; x += W_SUBIMG) {
+		    			  conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
+		    		  }
+		    	  }
+				   printf("mode 1 \n");
+				   grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
 
-		               transfer_LCD_with_dma(&grayscale[16520],	//affiche l'image en niveau de gris sur le LCD
-		      		                	cam_get_xsize()>>1,
-		      		                	cam_get_ysize(),1);
-		      	  	   if ((current_mode&DIPSW_SW8_MASK)!=0) {
-		      	  		  vga_set_swap(VGA_QuarterScreen|VGA_Grayscale);
-		      	  		  vga_set_pointer(grayscale);
-		      	  	   }
+				   transfer_LCD_with_dma(&grayscale[16520],	//affiche l'image en niveau de gris sur le LCD
+									cam_get_xsize()>>1,
+									cam_get_ysize(),1);
+				   if ((current_mode&DIPSW_SW8_MASK)!=0) {
+					  vga_set_swap(VGA_QuarterScreen|VGA_Grayscale);
+					  vga_set_pointer(grayscale);
+				   }
 
-		      	  	   break;
+				   break;
 		      case 2 :
 		    	  start_conv_grayscale = alt_timestamp();
 		    	  conv_grayscale((void *)image,
@@ -155,31 +163,34 @@ int main()
 		    	  printf("default mode\n");
 
 
-		    	  start_conv_grayscale = alt_timestamp();
+
 		    	  /*conv_grayscale((void *)image,					//convertit l'image en niveaux de gris
 	                                  cam_get_xsize()>>1,
 	                                  cam_get_ysize());
 	              */
+		    	  start_conv_grayscale = alt_timestamp();
+
 
 		    	  for (int y = 0; y < height; y += H_SUBIMG) {
 		    	      for (int x = 0; x < width; x += W_SUBIMG) {
-		    	          conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
+		    	          conv_grayscale_with_subimg(image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    	      }
 		    	  }
 
 		    	  end_conv_grayscale = alt_timestamp();
 
+
 		    	  grayscale = get_grayscale_picture();			//recupere l'image en niveau de gris
 
 
-
 		    	  start_sobel_complete = alt_timestamp();
-		    	  sobel_complete(grayscale, 128);				//applique le filtre de sobel sur l'image (grayscale)
-		    	  //for (int y = 0; y < height; y += 192) {
-					//  for (int x = 0; x < width; x += 256) {
-						  //sobel_complete_with_subimg(image, 128, 0, 0, cam_get_xsize()>>1, cam_get_ysize());
-					  //}
-				  //}
+		    	  //sobel_complete(grayscale, 128);				//applique le filtre de sobel sur l'image (grayscale)
+
+		    	  for (int y = 0; y < height; y += H_SUBIMG) {
+					  for (int x = 0; x < width; x += W_SUBIMG) {
+						  sobel_complete_with_subimg(grayscale, 128, x, y, W_SUBIMG, H_SUBIMG);
+					  }
+				  }
 
 		    	  end_sobel_complete = alt_timestamp();
 

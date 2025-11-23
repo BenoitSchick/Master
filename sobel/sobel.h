@@ -11,9 +11,9 @@
 
 void init_sobel_arrays(int width , int height);
 void sobel_complete(unsigned char *source, short threshold);
+
 void sobel_complete_with_subimg(unsigned char *source, short threshold,
-								int x0_subimg, int y0_subimg,
-								int w_subimg, int h_subimg);
+								int x0_subimg, int y0_subimg, int w_subimg, int h_subimg);
 void sobel_x( unsigned char *source );
 void sobel_x_with_rgb( unsigned char *source );
 void sobel_y( unsigned char *source );

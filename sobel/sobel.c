@@ -67,6 +67,7 @@ void init_sobel_arrays(int width , int height) {
 
 	// sobel result stocké hors du cache --> 140 cycles (cache) à 79 cycles (hors cache)
 	sobel_result = (unsigned char*)alt_uncached_malloc(width*height*sizeof(unsigned char));
+	memset(sobel_result, 0, width*height*sizeof(unsigned char));
 
 	//sobel result stocké dans le cache
 	//sobel_result = (unsigned char*)malloc(width*height*sizeof(unsigned char));
@@ -139,25 +140,27 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 	int gy;
 	int sum;
 
+	int y_start = y0_subimg;
+	int y_end = y0_subimg+h_subimg;
+	int x_start = x0_subimg;
+	int x_end = x0_subimg+w_subimg;
 
 
-	for (y = 1 ; y < h_subimg-1 ; y++) {
+	for (y = y_start ; y < y_end ; y+=2) {
 		//pre-calcul des indices
-		y_minus1 = ((y0_subimg+y) - 1) * sobel_width;
-		y0       = (y0_subimg+y) * sobel_width;
-		y_plus1  = ((y0_subimg+y) + 1) * sobel_width;
+		y_minus1 = (y - 1) * sobel_width;
+		y0       = y * sobel_width;
+		y_plus1  = (y + 1) * sobel_width;
 
 		row_ym1 = &source[y_minus1];
 		row_y0  = &source[y0];
 		row_yp1 = &source[y_plus1];
 
-		unsigned char* result = sobel_result + y0 + x0_subimg;
+		for (x = x_start ; x < x_end ; x+=2) {
 
-		for (x = 1 ; x < w_subimg-1 ; x++) {
-
-			x_minus1 = (x+x0_subimg) - 1;
-			x0       = (x+x0_subimg);
-			x_plus1  = (x+x0_subimg) + 1;
+			x_minus1 = x - 1;
+			//x0       = x;
+			x_plus1  = x + 1;
 
 			//convolution matrice de sobel avec image
 			gx =
@@ -166,15 +169,20 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 				- row_yp1[x_minus1] + row_yp1[x_plus1];
 
 			gy =
-				+ row_ym1[x_minus1] + (row_ym1[x0] << 1) + row_ym1[x_plus1]
-				- row_yp1[x_minus1] - (row_yp1[x0] << 1) - row_yp1[x_plus1];
-
-			//array_index = y0 + x0_subimg + x;
+				+ row_ym1[x_minus1] + (row_ym1[x] << 1) + row_ym1[x_plus1]
+				- row_yp1[x_minus1] - (row_yp1[x] << 1) - row_yp1[x_plus1];
 
 			//Applique un treshold
 			sum = (gx < 0 ? -gx : gx) + (gy < 0 ? -gy : gy);
-			//sobel_result[array_index] = (sum > threshold) ? 0xFF : 0;
-			result[x] = (sum > threshold) ? 0xFF : 0;
+			sobel_result[y0 + x] = (sum > threshold) ? 0xFF : 0;
+
+			/*unsigned char val = (sum > threshold) ? 0xFF : 0;
+
+			if (x+1 < x_end)       sobel_result[y0 + x + 1] = val;        // pixel à droite
+			if (y+1 < y_end) {
+				sobel_result[(y+1)*sobel_width + x] = val;             // pixel en dessous
+				if (x+1 < x_end) sobel_result[(y+1)*sobel_width + x + 1] = val; // diagonale
+			}*/
 		}
 	}
 }
