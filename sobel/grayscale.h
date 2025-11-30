@@ -21,14 +21,23 @@
  *
  * @return void
  */
+
+void init_grayscale_arrays(int width , int height);
 void conv_grayscale_with_subimg(void *src_picture, int x0_subimg,
 								int y0_subimg, int w_subimg, int h_subimg,
 								int width, int height);
 
-void build_LUT_rgb_to_gray(int width, int height);
 void conv_grayscale(void *picture,
 		            int width,
 		            int height);
+
+void build_LUT_rgb_to_gray(int width, int height);
+void conv_grayscale_LUT(void *picture,
+		            int width,
+		            int height);
+void conv_grayscale_with_subimg_LUT(void *src_picture, int x0_subimg,
+								int y0_subimg, int w_subimg, int h_subimg,
+								int width, int height);
 int get_grayscale_width();
 int get_grayscale_height();
 unsigned char *get_grayscale_picture();

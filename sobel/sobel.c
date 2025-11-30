@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "io.h"
+#include <stdint.h>
+#include <system.h>
 
 const char gx_array[3][3] = {{-1,0,1},
                              {-2,0,2},
@@ -132,10 +134,11 @@ void sobel_complete(unsigned char *source, short threshold)
 void sobel_complete_with_subimg(unsigned char *source, short threshold,
 								int x0_subimg, int y0_subimg, int w_subimg, int h_subimg)
 {
-	int x,y, x_minus1, x0, x_plus1, array_index, y_minus1, y0, y_plus1;
+	int x,y, x_minus2, x_minus1, x0, x_plus1, array_index, y_minus2, y_minus1, y0, y_plus1;
 	unsigned char* row_ym1;
 	unsigned char* row_y0;
 	unsigned char* row_yp1;
+
 	int gx;
 	int gy;
 	int sum;
@@ -146,8 +149,10 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 	int x_end = x0_subimg+w_subimg;
 
 
-	for (y = y_start ; y < y_end ; y+=2) {
+	for (y = y_start ; y < y_end ; y+=1) {
 		//pre-calcul des indices
+
+		//y_minus2 = (y - 2) * sobel_width;
 		y_minus1 = (y - 1) * sobel_width;
 		y0       = y * sobel_width;
 		y_plus1  = (y + 1) * sobel_width;
@@ -156,29 +161,91 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 		row_y0  = &source[y0];
 		row_yp1 = &source[y_plus1];
 
-		for (x = x_start ; x < x_end ; x+=2) {
+		//unsigned char *dst_bef2 = &sobel_result[y_minus2];
+		//unsigned char *dst_bef1 = &sobel_result[y_minus1];
+		//unsigned char *dst_next = &sobel_result[y_plus1];
+		unsigned char *dst = &sobel_result[y0];
 
+		for (x = x_start ; x < x_end ; x+=1) {
+
+			//x_minus2 = x - 2;
 			x_minus1 = x - 1;
-			//x0       = x;
 			x_plus1  = x + 1;
 
+
+			uint32_t dataa = 	((uint32_t)row_ym1[x_minus1] << 24) |
+								((uint32_t)row_ym1[x_plus1] << 16) |
+								((uint32_t)row_y0[x_minus1] << 8)  |
+								((uint32_t)row_y0[x_plus1]);
+
+			uint32_t datab =	((uint32_t)row_yp1[x_minus1] << 24) |
+							 	((uint32_t)row_yp1[x_plus1] << 16) |
+								((uint32_t)row_ym1[x]   << 8)  |
+								((uint32_t)row_yp1[x]);
+
+			dst[x] = ALT_CI_CI_SOBEL_0(dataa, datab);
+
+
 			//convolution matrice de sobel avec image
-			gx =
+			/*gx =
 				- row_ym1[x_minus1] + row_ym1[x_plus1]
 				- (row_y0[x_minus1] << 1) + (row_y0[x_plus1] << 1)
 				- row_yp1[x_minus1] + row_yp1[x_plus1];
 
 			gy =
 				+ row_ym1[x_minus1] + (row_ym1[x] << 1) + row_ym1[x_plus1]
-				- row_yp1[x_minus1] - (row_yp1[x] << 1) - row_yp1[x_plus1];
+				- row_yp1[x_minus1] - (row_yp1[x] << 1) - row_yp1[x_plus1];*/
 
-			//Applique un treshold
+			/*//Applique un treshold
 			sum = (gx < 0 ? -gx : gx) + (gy < 0 ? -gy : gy);
-			sobel_result[y0 + x] = (sum > threshold) ? 0xFF : 0;
 
-			/*unsigned char val = (sum > threshold) ? 0xFF : 0;
+			//Result sobel
+			unsigned char val = (sum > threshold) ? 0xFF : 0;
+			dst[x] = val;*/
 
-			if (x+1 < x_end)       sobel_result[y0 + x + 1] = val;        // pixel à droite
+
+
+			// Interpolation
+			//sobel_result[y0 + x + 1] = val;
+			//sobel_result[(y+1)*sobel_width + x] = val;
+			//sobel_result[(y+1)*sobel_width + x + 1] = val;
+
+
+			//unsigned char val_inter = (dst_bef[x_minus2] + dst[x_minus2] + dst_bef[x] + dst[x]) >> 2;
+
+			// Interpolation bilineaire
+			/*if(y != 0) {
+				if(x != 0) {
+					unsigned char val_inter =
+							(sobel_result[(y-2)*sobel_width + x-2] +
+							sobel_result[y*sobel_width + x-2] +
+							sobel_result[(y-2)*sobel_width + x] +
+							sobel_result[y*sobel_width + x]) >> 2;
+
+					//sobel_result[(y-1)*sobel_width + x] = val_inter;
+					//sobel_result[(y)*sobel_width + x-1] = val_inter;
+					sobel_result[(y-1)*sobel_width + x-1] = val_inter;
+					//sobel_result[(y-2)*sobel_width + x-1] = val_inter;
+					//sobel_result[(y-1)*sobel_width + x-2] = val_inter;
+				}
+			}*/
+
+
+
+			/*dst[x_minus1] = val;
+			dst_bef1[x] = val;
+			dst_bef1[x_minus1] = val;
+			dst_bef2[x_minus1] = val;
+			dst_bef1[x_minus2] = val;*/
+
+
+
+			//sobel_result[y0 + x] = val;
+
+
+
+
+			/*if (x+1 < x_end)       sobel_result[y0 + x + 1] = val;        // copie pixel à droite
 			if (y+1 < y_end) {
 				sobel_result[(y+1)*sobel_width + x] = val;             // pixel en dessous
 				if (x+1 < x_end) sobel_result[(y+1)*sobel_width + x + 1] = val; // diagonale

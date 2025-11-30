@@ -29,8 +29,8 @@ alt_u32 end_conv_grayscale = 0;
 alt_u32 start_sobel_threshold = 0;
 alt_u32 end_sobel_threshold = 0;
 
-const int H_SUBIMG = 32; //nbre de pixels height de la subimage
-const int W_SUBIMG = 32; //nbre de pixels width de la subimage
+const int H_SUBIMG = 128; //nbre de pixels height de la subimage
+const int W_SUBIMG = 128; //nbre de pixels width de la subimage
 
 int main()
 {
@@ -53,8 +53,9 @@ int main()
   cam_set_image_pointer(2,buffer3);
   cam_set_image_pointer(3,buffer4);
   enable_continues_mode();
+  init_grayscale_arrays(cam_get_xsize()>>1,cam_get_ysize());
   init_sobel_arrays(cam_get_xsize()>>1,cam_get_ysize());
-  build_LUT_rgb_to_gray(cam_get_xsize()>>1,cam_get_ysize()); // construit une LUT pour optimiser la conversion rgb to grayscale
+  //build_LUT_rgb_to_gray(cam_get_xsize()>>1,cam_get_ysize()); // construit une LUT pour optimiser la conversion rgb to grayscale
   	  	  	  	  	  	   // qui se fera hors de la boucle infini --> gain de performances
 
 
@@ -83,7 +84,7 @@ int main()
 
 		      	  	   break;
 		      case 1 :
-
+		    	  printf("mode 1 \n");
 		    	  /*conv_grayscale((void *)image,		//convertit l'image en niveaux de gris
 		    		                  cam_get_xsize()>>1,
 		    		                  cam_get_ysize());*/
@@ -92,7 +93,7 @@ int main()
 		    			  conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    		  }
 		    	  }
-				   printf("mode 1 \n");
+
 				   grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
 
 				   transfer_LCD_with_dma(&grayscale[16520],	//affiche l'image en niveau de gris sur le LCD
@@ -164,25 +165,27 @@ int main()
 
 
 
-		    	  /*conv_grayscale((void *)image,					//convertit l'image en niveaux de gris
-	                                  cam_get_xsize()>>1,
-	                                  cam_get_ysize());
-	              */
+
+
 		    	  start_conv_grayscale = alt_timestamp();
 
 
 		    	  for (int y = 0; y < height; y += H_SUBIMG) {
 		    	      for (int x = 0; x < width; x += W_SUBIMG) {
-		    	          conv_grayscale_with_subimg(image, x, y, W_SUBIMG, H_SUBIMG, width, height);
+		    	    	  conv_grayscale_with_subimg(image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    	      }
 		    	  }
 
+		    	  /*conv_grayscale((void *)image,					//convertit l'image en niveaux de gris
+		    	  	                                  cam_get_xsize()>>1,
+		    	  	                                  cam_get_ysize());*/
+
 		    	  end_conv_grayscale = alt_timestamp();
 
-
+		    	  printf("grayscale_done\n");
 		    	  grayscale = get_grayscale_picture();			//recupere l'image en niveau de gris
 
-
+		    	  printf("grayscale_picture return\n");
 		    	  start_sobel_complete = alt_timestamp();
 		    	  //sobel_complete(grayscale, 128);				//applique le filtre de sobel sur l'image (grayscale)
 
@@ -194,7 +197,7 @@ int main()
 
 		    	  end_sobel_complete = alt_timestamp();
 
-
+		    	  printf("sobel done\n");
 		    	  grayscale=GetSobelResult();
 		    	  transfer_LCD_with_dma(&grayscale[16520], 		//affiche l'image filtre sur le LCD
 		    			  	  	  	  	cam_get_xsize()>>1,
