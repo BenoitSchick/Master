@@ -67,12 +67,15 @@ void init_sobel_arrays(int width , int height) {
 		sobel_rgb565[loop] = 0;
 	}
 
-	// sobel result stocké hors du cache --> 140 cycles (cache) à 79 cycles (hors cache)
-	sobel_result = (unsigned char*)alt_uncached_malloc(width*height*sizeof(unsigned char));
+	// sobel result stockï¿½ hors du cache --> 140 cycles (cache) ï¿½ 79 cycles (hors cache)
+
+	//sobel_result = (unsigned char*)alt_uncached_malloc(width*height*sizeof(unsigned char));
 	memset(sobel_result, 0, width*height*sizeof(unsigned char));
 
-	//sobel result stocké dans le cache
-	//sobel_result = (unsigned char*)malloc(width*height*sizeof(unsigned char));
+	//sobel result stocke dans le cache
+
+	//__attribute__ ((section (".tcm_data")));
+	sobel_result = (unsigned char*)malloc(width*height*sizeof(unsigned char));
 
 	//sobel result sur Stack --> 120 cycles/pixel ==> plus efficace que malloc
 }
@@ -93,24 +96,24 @@ void sobel_complete(unsigned char *source, short threshold)
 	int sum;
 
 	for (y = 1 ; y < img_height ; y++) {
-		//Pré-calcul des indices y (sinon on recalcul à chaque fois dans boucle x...)
+		//Prï¿½-calcul des indices y (sinon on recalcul ï¿½ chaque fois dans boucle x...)
 		y_minus1 = (y - 1) * sobel_width;
 		y0       = y * sobel_width;
 		y_plus1  = (y + 1) * sobel_width;
 
-		//On récupère une seule fois le pointeur vers chaque ligne correspondant à y-1, y et y+1
+		//On rï¿½cupï¿½re une seule fois le pointeur vers chaque ligne correspondant ï¿½ y-1, y et y+1
 		//Ces adresses restent constantes dans la boucle x
 		row_ym1 = &source[y_minus1];
 		row_y0  = &source[y0];
 		row_yp1 = &source[y_plus1];
 
 		for (x = 1 ; x < img_width ; x++) {
-			//calcul x-1, x, x+1 une seule fois par itération de x
+			//calcul x-1, x, x+1 une seule fois par itï¿½ration de x
 			x_minus1 = x - 1;
 			x0       = x;
 			x_plus1  = x + 1;
 
-			//On parcours les colonnes correspondant à x-1, x, x+1 pour chaque ligne y-1, y, y+1 --> convolue le filtre de Sobel sur l'image
+			//On parcours les colonnes correspondant ï¿½ x-1, x, x+1 pour chaque ligne y-1, y, y+1 --> convolue le filtre de Sobel sur l'image
 			//Optimisation : Enlever multiplication avec tableau matrice de sobel
 
 			gx =
@@ -143,6 +146,7 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 	int gy;
 	int sum;
 
+	//definition des limites
 	int y_start = y0_subimg;
 	int y_end = y0_subimg+h_subimg;
 	int x_start = x0_subimg;
@@ -164,7 +168,9 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 		//unsigned char *dst_bef2 = &sobel_result[y_minus2];
 		//unsigned char *dst_bef1 = &sobel_result[y_minus1];
 		//unsigned char *dst_next = &sobel_result[y_plus1];
-		unsigned char *dst = &sobel_result[y0];
+
+		unsigned char *dst = &sobel_result[y0]; //selectionne la ligne y
+											//	--> parcourt les pixels de x_start à x_end de la ligne y
 
 		for (x = x_start ; x < x_end ; x+=1) {
 
@@ -173,14 +179,14 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 			x_plus1  = x + 1;
 
 
-			uint32_t dataa = 	((uint32_t)row_ym1[x_minus1] << 24) |
-								((uint32_t)row_ym1[x_plus1] << 16) |
-								((uint32_t)row_y0[x_minus1] << 8)  |
-								((uint32_t)row_y0[x_plus1]);
+			uint32_t dataa = 	(((uint32_t)(row_ym1[x_minus1])) << 24) |
+								(((uint32_t)(row_ym1[x_plus1])) << 16) |
+								(((uint32_t)(row_y0[x_minus1])) << 8)  |
+								((uint32_t)(row_y0[x_plus1]));
 
-			uint32_t datab =	((uint32_t)row_yp1[x_minus1] << 24) |
-							 	((uint32_t)row_yp1[x_plus1] << 16) |
-								((uint32_t)row_ym1[x]   << 8)  |
+			uint32_t datab =	(((uint32_t)(row_yp1[x_minus1])) << 24) |
+							 	(((uint32_t)(row_yp1[x_plus1])) << 16) |
+								(((uint32_t)row_ym1[x])   << 8)  |
 								((uint32_t)row_yp1[x]);
 
 			dst[x] = ALT_CI_CI_SOBEL_0(dataa, datab);
@@ -205,15 +211,14 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 
 
 
-			// Interpolation
-			//sobel_result[y0 + x + 1] = val;
-			//sobel_result[(y+1)*sobel_width + x] = val;
-			//sobel_result[(y+1)*sobel_width + x + 1] = val;
+
+
+
 
 
 			//unsigned char val_inter = (dst_bef[x_minus2] + dst[x_minus2] + dst_bef[x] + dst[x]) >> 2;
 
-			// Interpolation bilineaire
+			// Interpolation
 			/*if(y != 0) {
 				if(x != 0) {
 					unsigned char val_inter =
@@ -231,7 +236,6 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 			}*/
 
 
-
 			/*dst[x_minus1] = val;
 			dst_bef1[x] = val;
 			dst_bef1[x_minus1] = val;
@@ -243,12 +247,10 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 			//sobel_result[y0 + x] = val;
 
 
-
-
-			/*if (x+1 < x_end)       sobel_result[y0 + x + 1] = val;        // copie pixel à droite
+			/*if (x+1 < x_end)       sobel_result[y0 + x + 1] = val;        // copie pixel ï¿½ droite
 			if (y+1 < y_end) {
 				sobel_result[(y+1)*sobel_width + x] = val;             // pixel en dessous
-				if (x+1 < x_end) sobel_result[(y+1)*sobel_width + x + 1] = val; // diagonale
+				if (x+1 < x_end) sobel_result[(y+1)*sobel_width + x+1] = val; // diagonale
 			}*/
 		}
 	}
