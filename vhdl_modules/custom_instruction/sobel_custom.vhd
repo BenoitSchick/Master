@@ -30,7 +30,7 @@ use ieee.numeric_std.all;
 
 -- Input    //  n               // Required : yes   //  select multiple sub-operations in the same instruction (limits : 256)
 
-entity custom_instr_grayscale is
+entity custom_instr_sobel is
     port (
         --clk     : in  std_logic;
         --reset   : in  std_logic;
@@ -44,67 +44,78 @@ entity custom_instr_grayscale is
     );
 end entity;
 
-architecture rtl of custom_instr_grayscale is
+architecture rtl of custom_instr_sobel is
 
-signal row_ym1_xminus1 	: unsigned(7 downto 0); -- row_ym1[x-1]
-signal row_ym1_xplus1  	: unsigned(7 downto 0); -- row_ym1[x+1]
-signal row_y0_xminus1  	: unsigned(7 downto 0); -- row_y0[x-1]
-signal row_y0_xplus1   	: unsigned(7 downto 0); -- row_y0[x+1]
-signal row_yp1_xminus1 	: unsigned(7 downto 0); -- row_yp1[x-1]
-signal row_yp1_xplus1  	: unsigned(7 downto 0); -- row_yp1[x+1]
-signal row_ym1_x      	: unsigned(7 downto 0); -- row_ym1[x]
-signal row_yp1_x      	: unsigned(7 downto 0); -- row_yp1[x]
+--nombre signe 9 bits : -256 à 255 !
+signal row_ym1_xminus1 	: signed(8 downto 0); -- row_ym1[x-1]
+signal row_ym1_xplus1  	: signed(8 downto 0); -- row_ym1[x+1]
+signal row_y0_xminus1  	: signed(8 downto 0); -- row_y0[x-1]
+signal row_y0_xplus1   	: signed(8 downto 0); -- row_y0[x+1]
+signal row_yp1_xminus1 	: signed(8 downto 0); -- row_yp1[x-1]
+signal row_yp1_xplus1  	: signed(8 downto 0); -- row_yp1[x+1]
+signal row_ym1_x      	: signed(8 downto 0); -- row_ym1[x]
+signal row_yp1_x      	: signed(8 downto 0); -- row_yp1[x]
 
 
 signal gx_s				: signed(31 downto 0);
-signal gx_abs_s			: unsigned(31 downto 0);
+signal gx_abs_s			: signed(31 downto 0);
 signal gy_s				: signed(31 downto 0);
-signal gy_abs_s			: unsigned(31 downto 0);
-signal sum_s			: unsigned(31 downto 0);
-signal result_sobel_s	: unsigned(7 downto 0);	-- pixel avec intensite entre 0 et 255
+signal gy_abs_s			: signed(31 downto 0);
+signal sum_s			: signed(31 downto 0);
+signal result_sobel_s	: signed(31 downto 0);	-- pixel avec intensite entre 0 et 255
 
 constant TRESHOLD  		: integer := 128;
 
 
 begin
 
--- chaque row contient 8 bits
+-- chaque row contient 8 bits --> extendre à 9 bits : -256 à 255
 
 -- Initialisation à partir de dataa
-	row_ym1_xminus1 <= unsigned(dataa(31 downto 24));
-	row_ym1_xplus1  <= unsigned(dataa(23 downto 16));
-	row_y0_xminus1  <= unsigned(dataa(15 downto 8));
-	row_y0_xplus1   <= unsigned(dataa(7 downto 0));
+	--row_ym1_xminus1 <= signed((15 downto 8 => '0') & dataa(31 downto 24));
+	--row_ym1_xplus1  <= signed((15 downto 8 => '0') & dataa(23 downto 16));
+	--row_y0_xminus1  <= signed((15 downto 8 => '0') & dataa(15 downto 8));
+	--row_y0_xplus1   <= signed((15 downto 8 => '0') & dataa(7 downto 0));
+	row_ym1_xminus1 <= signed('0' & dataa(31 downto 24));
+	row_ym1_xplus1  <= signed('0' & dataa(23 downto 16));
+	row_y0_xminus1  <= signed('0' & dataa(15 downto 8));
+	row_y0_xplus1   <= signed('0' & dataa(7 downto 0));
 
 -- Initialisation à partir de datab
-	row_yp1_xminus1 <= unsigned(datab(31 downto 24));
-	row_yp1_xplus1  <= unsigned(datab(23 downto 16));
-	row_ym1_x      	<= unsigned(datab(15 downto 8));
-	row_yp1_x      	<= unsigned(datab(7 downto 0));
+	--row_yp1_xminus1 <= signed((15 downto 8 => '0') & datab(31 downto 24));
+	--row_yp1_xplus1  <= signed((15 downto 8 => '0') & datab(23 downto 16));
+	--row_ym1_x      	<= signed((15 downto 8 => '0') & datab(15 downto 8));
+	--row_yp1_x      	<= signed((15 downto 8 => '0') & datab(7 downto 0));
+	row_yp1_xminus1 <= signed('0' & datab(31 downto 24));
+	row_yp1_xplus1  <= signed('0' & datab(23 downto 16));
+	row_ym1_x      	<= signed('0' & datab(15 downto 8));
+	row_yp1_x      	<= signed('0' & datab(7 downto 0));
 
 
 --Calcul de la convolution avec matrice de sobel
-
-	--nombre signe 9 bits : -256 à 255 !
-						
-	gx_s 		<= 	- signed('0' & row_ym1_xminus1) + signed('0' & row_ym1_xplus1)
-					- (signed('0' & row_y0_xminus1) sll 1) + (signed('0' & row_y0_xplus1) sll 1)
-					- signed('0' & row_yp1_xminus1) + signed('0' & row_yp1_xplus1);
+	gx_s 		<= 	resize((-row_ym1_xminus1 + row_ym1_xplus1
+					- (row_y0_xminus1 sll 1) + (row_y0_xplus1 sll 1)
+					- row_yp1_xminus1 + row_yp1_xplus1), 32);
 					
-	gy_s 		<= 	signed('0' & row_ym1_xminus1) + (signed('0' & row_ym1_x) sll 1) + signed('0' & row_ym1_xplus1)
-					- signed('0' & row_yp1_xminus1) - (signed('0' & row_yp1_x) sll 1) - signed('0' & row_yp1_xplus1);
+	gy_s 		<= 	resize((row_ym1_xminus1 + (row_ym1_x sll 1) + row_ym1_xplus1
+					- row_yp1_xminus1 - (row_yp1_x sll 1) - row_yp1_xplus1),32);
 			
 	--gx_abs_s 	<= unsigned(-gx_s) when gx_s < 0 else unsigned(gx_s);
 	--gy_abs_s 	<= unsigned(-gy_s) when gy_s < 0 else unsigned(gy_s);
-	gx_abs_s 	<= unsigned(abs(gx_s));
-	gy_abs_s 	<= unsigned(abs(gy_s));
-	
-	sum_s	 	<=	gx_abs_s + gy_abs_s;
 
-	result_sobel_s	<= 	x"FF" when sum_s > to_unsigned(TRESHOLD, 32) else
-						x"00";
+	gx_abs_s 	<= abs(gx_s); --abs retourne le meme type que l'argument
+	gy_abs_s 	<= abs(gy_s);
+	--gx_abs_s	<= gx_s when gx_s >= 0 else -gx_s;
+	--gy_abs_s	<= gy_s when gy_s >= 0 else -gy_s;
+	
+	sum_s	 	<=	gx_abs_s + gy_abs_s; --gx_abs_s & gy_abs_s sont positif, on peut retourner en unsigned
+
+	--result_sobel_s	<= 	x"FFFFFFFF" when (sum_s >= x"00000000" )else--to_signed(TRESHOLD, 32) else
+						--x"00000000";
 						
-	result 		<= (31 downto 8 => '0') & std_logic_vector(result_sobel_s);
+	--result 		<= (31 downto 8 => '0') & std_logic_vector(result_sobel_s);
+	result	<= 	x"FFFFFFFF" when (sum_s >= to_signed(TRESHOLD, 32) ) else
+				x"00000000";
 	
 	
 end architecture rtl;
