@@ -95,6 +95,7 @@ void sobel_complete(unsigned char *source, short threshold)
 	int gy;
 	int sum;
 
+
 	for (y = 1 ; y < img_height ; y++) {
 		//Pr�-calcul des indices y (sinon on recalcul � chaque fois dans boucle x...)
 		y_minus1 = (y - 1) * sobel_width;
@@ -106,6 +107,7 @@ void sobel_complete(unsigned char *source, short threshold)
 		row_ym1 = &source[y_minus1];
 		row_y0  = &source[y0];
 		row_yp1 = &source[y_plus1];
+
 
 		for (x = 1 ; x < img_width ; x++) {
 			//calcul x-1, x, x+1 une seule fois par it�ration de x

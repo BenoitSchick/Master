@@ -59,6 +59,7 @@ void conv_grayscale_with_subimg(void *src_picture, int x0_subimg,
 	unsigned short *src = (unsigned short *)src_picture;
 	int x,y;
 
+
 	for (y = 0; y < h_subimg; y++) {
 
 		//y0_subimg 	= numero de la ligne
