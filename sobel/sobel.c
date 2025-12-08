@@ -217,10 +217,10 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 
 
 
+		// Interpolation
 
 			//unsigned char val_inter = (dst_bef[x_minus2] + dst[x_minus2] + dst_bef[x] + dst[x]) >> 2;
 
-			// Interpolation
 			/*if(y != 0) {
 				if(x != 0) {
 					unsigned char val_inter =
@@ -238,13 +238,8 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 			}*/
 
 
-			/*dst[x_minus1] = val;
-			dst_bef1[x] = val;
-			dst_bef1[x_minus1] = val;
-			dst_bef2[x_minus1] = val;
-			dst_bef1[x_minus2] = val;*/
 
-
+		//Interpolation
 
 			//sobel_result[y0 + x] = val;
 

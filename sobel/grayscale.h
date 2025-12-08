@@ -23,6 +23,9 @@
  */
 
 void init_grayscale_arrays(int width , int height);
+void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
+								int y0_subimg, int w_subimg, int h_subimg,
+								int width, int height);
 void conv_grayscale_with_subimg(void *src_picture, int x0_subimg,
 								int y0_subimg, int w_subimg, int h_subimg,
 								int width, int height);

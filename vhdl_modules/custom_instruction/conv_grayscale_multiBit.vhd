@@ -30,7 +30,7 @@ use ieee.numeric_std.all;
 
 -- Input    //  n               // Required : yes   //  select multiple sub-operations in the same instruction (limits : 256)
 
-entity custom_instr_grayscale is
+entity custom_instr_grayscale_multiBit is
     port (
         --clk     : in  std_logic;
         --reset   : in  std_logic;
@@ -44,24 +44,48 @@ entity custom_instr_grayscale is
     );
 end entity;
 
-architecture rtl of custom_instr_grayscale is
+architecture rtl of custom_instr_grayscale_multiBit is
+
+    --Conversion RGB (16bits) en Grayscale (8bits)
+    function rgb_to_grayscale(rgb_pixel : unsigned(15 downto 0)) return unsigned is
+        variable  r_s, g_s, b_s                       : unsigned(15 downto 0);
+        variable  r_weight_s, g_weight_s, b_weight_s  : unsigned(15 downto 0);
+        variable  gray_s                              : unsigned(15 downto 0);
+    begin
+        --extraction des couleurs r,g,b
+        r_s         := unsigned(("00000000000"  & rgb_pixel(15 downto 11))  and (x"001F")) sll 3;
+        g_s         := unsigned(("00000"        & rgb_pixel(15 downto 5))   and x"003F")   sll 2;
+        b_s         := unsigned(                  rgb_pixel(15 downto 0)    and x"001F")   sll 3;
+
+        --ponderation des couleurs r,g,b
+        r_weight_s 	:= (r_s sll 4) + (r_s sll 2) + r_s; 	--21 = 16+4+1
+	    g_weight_s 	:= (g_s sll 6) + (g_s sll 3); 			--72 = 64 + 8
+	    b_weight_s  := (b_s sll 2) + (b_s sll 1) + b_s; 	--7 = 4+2+1
+
+        gray_s      := (r_weight_s + g_weight_s + b_weight_s) srl 7;
+
+        return gray_s(7 downto 0); -- intensite entre 0 et 255 (8bits)
+    end function;
 
 
-    signal red_s, green_s, blue_s   					: unsigned(15 downto 0);
-	signal red_weight_s, green_weight_s, blue_weight_s  : unsigned(15 downto 0);
-	signal gray_s                   					: unsigned(15 downto 0);
+    -- 4 pixels RGB de 16bits
+    signal pix0, pix1, pix2, pix3 : unsigned(15 downto 0);
+    -- 4 pixels grayscale de 8bits
+    signal g0, g1, g2, g3 : unsigned(7 downto 0);
 
 begin
+
+    --Ordre depend du code C 
+    pix0    <= unsigned(dataa(31 downto 16));
+    pix1    <= unsigned(dataa(15 downto 0));
+    pix2    <= unsigned(datab(31 downto 16));
+    pix3    <= unsigned(datab(15 downto 0));
+
+    g0      <= rgb_to_grayscale(pix0);
+    g1      <= rgb_to_grayscale(pix1);
+    g2      <= rgb_to_grayscale(pix2);
+    g3      <= rgb_to_grayscale(pix3);
 	
-    red_s   <= unsigned(("00000000000" & dataa(15 downto 11)) and (x"1F")) sll 3;
-    green_s <= unsigned(("00000" & dataa(15 downto 5)) and x"3F") sll 2;
-    blue_s  <= unsigned(dataa(15 downto 0) and x"1F") sll 3;
-	
-	red_weight_s 	<= (red_s sll 4) + (red_s sll 2) + red_s; 		--21 = 16+4+1
-	green_weight_s 	<= (green_s sll 6) + (green_s sll 3); 			--72 = 64 + 8
-	blue_weight_s	<= (blue_s sll 2) + (blue_s sll 1) + blue_s; 	--7 = 4+2+1
-	
-	gray_s <= (red_weight_s + green_weight_s + blue_weight_s) srl 7;
-	result <= (31 downto 8 => '0') & std_logic_vector(gray_s)(7 downto 0); --gray avec intensite entre 0 et 255 --> cast en 8 bits !
+    result  <= std_logic_vector(g3 & g2 & g1 & g0); 
 
 end architecture rtl;

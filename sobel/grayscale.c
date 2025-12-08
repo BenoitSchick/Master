@@ -52,6 +52,215 @@ void conv_grayscale(void *picture,
 	}
 }
 
+void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
+								int y0_subimg, int w_subimg, int h_subimg,
+								int width, int height)
+{
+	unsigned short *src = (unsigned short *)src_picture;
+	uint32_t x,y;
+
+	for (y = 0; y < h_subimg; y++) {
+		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;
+		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;
+
+		/*for (x = 0; x < w_subimg; x += 4) {
+
+			//construction de 2 entrées 32 bits avec 4 pixels RGB 16 bits
+			uint32_t dataa = ((uint32_t)row_src[x] << 16) 	| (uint32_t)row_src[x+1];
+			uint32_t datab = ((uint32_t)row_src[x+2] << 16) | (uint32_t)row_src[x+3];
+
+			uint32_t result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(dataa, datab);
+
+			//Extraction de 4 pixels grayscale 8 bits
+			row_dst[x]   	=  result        & 0xFF; //mask 8bits
+			row_dst[x+1] 	= (result >> 8)  & 0xFF;
+			row_dst[x+2] 	= (result >> 16) & 0xFF;
+			row_dst[x+3] 	= (result >> 24) & 0xFF;
+		}*/
+		uint32_t result;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[0] << 16) | row_src[1], ((uint32_t)row_src[2] << 16) | row_src[3]);
+		row_dst[0] = result & 0xFF; row_dst[1] = (result >> 8) & 0xFF; row_dst[2] = (result >> 16) & 0xFF; row_dst[3] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[4] << 16) | row_src[5], ((uint32_t)row_src[6] << 16) | row_src[7]);
+		row_dst[4] = result & 0xFF; row_dst[5] = (result >> 8) & 0xFF; row_dst[6] = (result >> 16) & 0xFF; row_dst[7] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[8] << 16) | row_src[9], ((uint32_t)row_src[10] << 16) | row_src[11]);
+		row_dst[8] = result & 0xFF; row_dst[9] = (result >> 8) & 0xFF; row_dst[10] = (result >> 16) & 0xFF; row_dst[11] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[12] << 16) | row_src[13], ((uint32_t)row_src[14] << 16) | row_src[15]);
+		row_dst[12] = result & 0xFF; row_dst[13] = (result >> 8) & 0xFF; row_dst[14] = (result >> 16) & 0xFF; row_dst[15] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[16] << 16) | row_src[17], ((uint32_t)row_src[18] << 16) | row_src[19]);
+		row_dst[16] = result & 0xFF; row_dst[17] = (result >> 8) & 0xFF; row_dst[18] = (result >> 16) & 0xFF; row_dst[19] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[20] << 16) | row_src[21], ((uint32_t)row_src[22] << 16) | row_src[23]);
+		row_dst[20] = result & 0xFF; row_dst[21] = (result >> 8) & 0xFF; row_dst[22] = (result >> 16) & 0xFF; row_dst[23] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[24] << 16) | row_src[25], ((uint32_t)row_src[26] << 16) | row_src[27]);
+		row_dst[24] = result & 0xFF; row_dst[25] = (result >> 8) & 0xFF; row_dst[26] = (result >> 16) & 0xFF; row_dst[27] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[28] << 16) | row_src[29], ((uint32_t)row_src[30] << 16) | row_src[31]);
+		row_dst[28] = result & 0xFF; row_dst[29] = (result >> 8) & 0xFF; row_dst[30] = (result >> 16) & 0xFF; row_dst[31] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[32] << 16) | row_src[33], ((uint32_t)row_src[34] << 16) | row_src[35]);
+		row_dst[32] = result & 0xFF; row_dst[33] = (result >> 8) & 0xFF; row_dst[34] = (result >> 16) & 0xFF; row_dst[35] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[36] << 16) | row_src[37], ((uint32_t)row_src[38] << 16) | row_src[39]);
+		row_dst[36] = result & 0xFF; row_dst[37] = (result >> 8) & 0xFF; row_dst[38] = (result >> 16) & 0xFF; row_dst[39] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[40] << 16) | row_src[41], ((uint32_t)row_src[42] << 16) | row_src[43]);
+		row_dst[40] = result & 0xFF; row_dst[41] = (result >> 8) & 0xFF; row_dst[42] = (result >> 16) & 0xFF; row_dst[43] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[44] << 16) | row_src[45], ((uint32_t)row_src[46] << 16) | row_src[47]);
+		row_dst[44] = result & 0xFF; row_dst[45] = (result >> 8) & 0xFF; row_dst[46] = (result >> 16) & 0xFF; row_dst[47] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[48] << 16) | row_src[49], ((uint32_t)row_src[50] << 16) | row_src[51]);
+		row_dst[48] = result & 0xFF; row_dst[49] = (result >> 8) & 0xFF; row_dst[50] = (result >> 16) & 0xFF; row_dst[51] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[52] << 16) | row_src[53], ((uint32_t)row_src[54] << 16) | row_src[55]);
+		row_dst[52] = result & 0xFF; row_dst[53] = (result >> 8) & 0xFF; row_dst[54] = (result >> 16) & 0xFF; row_dst[55] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[56] << 16) | row_src[57], ((uint32_t)row_src[58] << 16) | row_src[59]);
+		row_dst[56] = result & 0xFF; row_dst[57] = (result >> 8) & 0xFF; row_dst[58] = (result >> 16) & 0xFF; row_dst[59] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[60] << 16) | row_src[61], ((uint32_t)row_src[62] << 16) | row_src[63]);
+		row_dst[60] = result & 0xFF; row_dst[61] = (result >> 8) & 0xFF; row_dst[62] = (result >> 16) & 0xFF; row_dst[63] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[64] << 16) | row_src[65], ((uint32_t)row_src[66] << 16) | row_src[67]);
+		row_dst[64] = result & 0xFF; row_dst[65] = (result >> 8) & 0xFF; row_dst[66] = (result >> 16) & 0xFF; row_dst[67] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[68] << 16) | row_src[69], ((uint32_t)row_src[70] << 16) | row_src[71]);
+		row_dst[68] = result & 0xFF; row_dst[69] = (result >> 8) & 0xFF; row_dst[70] = (result >> 16) & 0xFF; row_dst[71] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[72] << 16) | row_src[73], ((uint32_t)row_src[74] << 16) | row_src[75]);
+		row_dst[72] = result & 0xFF; row_dst[73] = (result >> 8) & 0xFF; row_dst[74] = (result >> 16) & 0xFF; row_dst[75] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[76] << 16) | row_src[77], ((uint32_t)row_src[78] << 16) | row_src[79]);
+		row_dst[76] = result & 0xFF; row_dst[77] = (result >> 8) & 0xFF; row_dst[78] = (result >> 16) & 0xFF; row_dst[79] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[80] << 16) | row_src[81], ((uint32_t)row_src[82] << 16) | row_src[83]);
+		row_dst[80] = result & 0xFF; row_dst[81] = (result >> 8) & 0xFF; row_dst[82] = (result >> 16) & 0xFF; row_dst[83] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[84] << 16) | row_src[85], ((uint32_t)row_src[86] << 16) | row_src[87]);
+		row_dst[84] = result & 0xFF; row_dst[85] = (result >> 8) & 0xFF; row_dst[86] = (result >> 16) & 0xFF; row_dst[87] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[88] << 16) | row_src[89], ((uint32_t)row_src[90] << 16) | row_src[91]);
+		row_dst[88] = result & 0xFF; row_dst[89] = (result >> 8) & 0xFF; row_dst[90] = (result >> 16) & 0xFF; row_dst[91] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[92] << 16) | row_src[93], ((uint32_t)row_src[94] << 16) | row_src[95]);
+		row_dst[92] = result & 0xFF; row_dst[93] = (result >> 8) & 0xFF; row_dst[94] = (result >> 16) & 0xFF; row_dst[95] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[96] << 16) | row_src[97], ((uint32_t)row_src[98] << 16) | row_src[99]);
+		row_dst[96] = result & 0xFF; row_dst[97] = (result >> 8) & 0xFF; row_dst[98] = (result >> 16) & 0xFF; row_dst[99] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[100] << 16) | row_src[101], ((uint32_t)row_src[102] << 16) | row_src[103]);
+		row_dst[100] = result & 0xFF; row_dst[101] = (result >> 8) & 0xFF; row_dst[102] = (result >> 16) & 0xFF; row_dst[103] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[104] << 16) | row_src[105], ((uint32_t)row_src[106] << 16) | row_src[107]);
+		row_dst[104] = result & 0xFF; row_dst[105] = (result >> 8) & 0xFF; row_dst[106] = (result >> 16) & 0xFF; row_dst[107] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[108] << 16) | row_src[109], ((uint32_t)row_src[110] << 16) | row_src[111]);
+		row_dst[108] = result & 0xFF; row_dst[109] = (result >> 8) & 0xFF; row_dst[110] = (result >> 16) & 0xFF; row_dst[111] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[112] << 16) | row_src[113], ((uint32_t)row_src[114] << 16) | row_src[115]);
+		row_dst[112] = result & 0xFF; row_dst[113] = (result >> 8) & 0xFF; row_dst[114] = (result >> 16) & 0xFF; row_dst[115] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[116] << 16) | row_src[117], ((uint32_t)row_src[118] << 16) | row_src[119]);
+		row_dst[116] = result & 0xFF; row_dst[117] = (result >> 8) & 0xFF; row_dst[118] = (result >> 16) & 0xFF; row_dst[119] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[120] << 16) | row_src[121], ((uint32_t)row_src[122] << 16) | row_src[123]);
+		row_dst[120] = result & 0xFF; row_dst[121] = (result >> 8) & 0xFF; row_dst[122] = (result >> 16) & 0xFF; row_dst[123] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[124] << 16) | row_src[125], ((uint32_t)row_src[126] << 16) | row_src[127]);
+		row_dst[124] = result & 0xFF; row_dst[125] = (result >> 8) & 0xFF; row_dst[126] = (result >> 16) & 0xFF; row_dst[127] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[128] << 16) | row_src[129], ((uint32_t)row_src[130] << 16) | row_src[131]);
+		row_dst[128] = result & 0xFF; row_dst[129] = (result >> 8) & 0xFF; row_dst[130] = (result >> 16) & 0xFF; row_dst[131] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[132] << 16) | row_src[133], ((uint32_t)row_src[134] << 16) | row_src[135]);
+		row_dst[132] = result & 0xFF; row_dst[133] = (result >> 8) & 0xFF; row_dst[134] = (result >> 16) & 0xFF; row_dst[135] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[136] << 16) | row_src[137], ((uint32_t)row_src[138] << 16) | row_src[139]);
+		row_dst[136] = result & 0xFF; row_dst[137] = (result >> 8) & 0xFF; row_dst[138] = (result >> 16) & 0xFF; row_dst[139] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[140] << 16) | row_src[141], ((uint32_t)row_src[142] << 16) | row_src[143]);
+		row_dst[140] = result & 0xFF; row_dst[141] = (result >> 8) & 0xFF; row_dst[142] = (result >> 16) & 0xFF; row_dst[143] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[144] << 16) | row_src[145], ((uint32_t)row_src[146] << 16) | row_src[147]);
+		row_dst[144] = result & 0xFF; row_dst[145] = (result >> 8) & 0xFF; row_dst[146] = (result >> 16) & 0xFF; row_dst[147] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[148] << 16) | row_src[149], ((uint32_t)row_src[150] << 16) | row_src[151]);
+		row_dst[148] = result & 0xFF; row_dst[149] = (result >> 8) & 0xFF; row_dst[150] = (result >> 16) & 0xFF; row_dst[151] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[152] << 16) | row_src[153], ((uint32_t)row_src[154] << 16) | row_src[155]);
+		row_dst[152] = result & 0xFF; row_dst[153] = (result >> 8) & 0xFF; row_dst[154] = (result >> 16) & 0xFF; row_dst[155] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[156] << 16) | row_src[157], ((uint32_t)row_src[158] << 16) | row_src[159]);
+		row_dst[156] = result & 0xFF; row_dst[157] = (result >> 8) & 0xFF; row_dst[158] = (result >> 16) & 0xFF; row_dst[159] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[160] << 16) | row_src[161], ((uint32_t)row_src[162] << 16) | row_src[163]);
+		row_dst[160] = result & 0xFF; row_dst[161] = (result >> 8) & 0xFF; row_dst[162] = (result >> 16) & 0xFF; row_dst[163] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[164] << 16) | row_src[165], ((uint32_t)row_src[166] << 16) | row_src[167]);
+		row_dst[164] = result & 0xFF; row_dst[165] = (result >> 8) & 0xFF; row_dst[166] = (result >> 16) & 0xFF; row_dst[167] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[168] << 16) | row_src[169], ((uint32_t)row_src[170] << 16) | row_src[171]);
+		row_dst[168] = result & 0xFF; row_dst[169] = (result >> 8) & 0xFF; row_dst[170] = (result >> 16) & 0xFF; row_dst[171] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[172] << 16) | row_src[173], ((uint32_t)row_src[174] << 16) | row_src[175]);
+		row_dst[172] = result & 0xFF; row_dst[173] = (result >> 8) & 0xFF; row_dst[174] = (result >> 16) & 0xFF; row_dst[175] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[176] << 16) | row_src[177], ((uint32_t)row_src[178] << 16) | row_src[179]);
+		row_dst[176] = result & 0xFF; row_dst[177] = (result >> 8) & 0xFF; row_dst[178] = (result >> 16) & 0xFF; row_dst[179] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[180] << 16) | row_src[181], ((uint32_t)row_src[182] << 16) | row_src[183]);
+		row_dst[180] = result & 0xFF; row_dst[181] = (result >> 8) & 0xFF; row_dst[182] = (result >> 16) & 0xFF; row_dst[183] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[184] << 16) | row_src[185], ((uint32_t)row_src[186] << 16) | row_src[187]);
+		row_dst[184] = result & 0xFF; row_dst[185] = (result >> 8) & 0xFF; row_dst[186] = (result >> 16) & 0xFF; row_dst[187] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[188] << 16) | row_src[189], ((uint32_t)row_src[190] << 16) | row_src[191]);
+		row_dst[188] = result & 0xFF; row_dst[189] = (result >> 8) & 0xFF; row_dst[190] = (result >> 16) & 0xFF; row_dst[191] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[192] << 16) | row_src[193], ((uint32_t)row_src[194] << 16) | row_src[195]);
+		row_dst[192] = result & 0xFF; row_dst[193] = (result >> 8) & 0xFF; row_dst[194] = (result >> 16) & 0xFF; row_dst[195] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[196] << 16) | row_src[197], ((uint32_t)row_src[198] << 16) | row_src[199]);
+		row_dst[196] = result & 0xFF; row_dst[197] = (result >> 8) & 0xFF; row_dst[198] = (result >> 16) & 0xFF; row_dst[199] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[200] << 16) | row_src[201], ((uint32_t)row_src[202] << 16) | row_src[203]);
+		row_dst[200] = result & 0xFF; row_dst[201] = (result >> 8) & 0xFF; row_dst[202] = (result >> 16) & 0xFF; row_dst[203] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[204] << 16) | row_src[205], ((uint32_t)row_src[206] << 16) | row_src[207]);
+		row_dst[204] = result & 0xFF; row_dst[205] = (result >> 8) & 0xFF; row_dst[206] = (result >> 16) & 0xFF; row_dst[207] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[208] << 16) | row_src[209], ((uint32_t)row_src[210] << 16) | row_src[211]);
+		row_dst[208] = result & 0xFF; row_dst[209] = (result >> 8) & 0xFF; row_dst[210] = (result >> 16) & 0xFF; row_dst[211] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[212] << 16) | row_src[213], ((uint32_t)row_src[214] << 16) | row_src[215]);
+		row_dst[212] = result & 0xFF; row_dst[213] = (result >> 8) & 0xFF; row_dst[214] = (result >> 16) & 0xFF; row_dst[215] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[216] << 16) | row_src[217], ((uint32_t)row_src[218] << 16) | row_src[219]);
+		row_dst[216] = result & 0xFF; row_dst[217] = (result >> 8) & 0xFF; row_dst[218] = (result >> 16) & 0xFF; row_dst[219] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[220] << 16) | row_src[221], ((uint32_t)row_src[222] << 16) | row_src[223]);
+		row_dst[220] = result & 0xFF; row_dst[221] = (result >> 8) & 0xFF; row_dst[222] = (result >> 16) & 0xFF; row_dst[223] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[224] << 16) | row_src[225], ((uint32_t)row_src[226] << 16) | row_src[227]);
+		row_dst[224] = result & 0xFF; row_dst[225] = (result >> 8) & 0xFF; row_dst[226] = (result >> 16) & 0xFF; row_dst[227] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[228] << 16) | row_src[229], ((uint32_t)row_src[230] << 16) | row_src[231]);
+		row_dst[228] = result & 0xFF; row_dst[229] = (result >> 8) & 0xFF; row_dst[230] = (result >> 16) & 0xFF; row_dst[231] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[232] << 16) | row_src[233], ((uint32_t)row_src[234] << 16) | row_src[235]);
+		row_dst[232] = result & 0xFF; row_dst[233] = (result >> 8) & 0xFF; row_dst[234] = (result >> 16) & 0xFF; row_dst[235] = (result >> 24) & 0xFF;
+
+		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[236] << 16) | row_src[237], ((uint32_t)row_src[238] << 16) | row_src[239]);
+		row_dst[236] = result & 0xFF; row_dst[237] = (result >> 8) & 0xFF; row_dst[238] = (result >> 16) & 0xFF; row_dst[239] = (result >> 24) & 0xFF;
+	}
+}
+
 void conv_grayscale_with_subimg(void *src_picture, int x0_subimg,
 								int y0_subimg, int w_subimg, int h_subimg,
 								int width, int height)

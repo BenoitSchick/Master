@@ -90,16 +90,17 @@ int main()
 		    	  /*conv_grayscale((void *)image,		//convertit l'image en niveaux de gris
 		    		                  cam_get_xsize()>>1,
 		    		                  cam_get_ysize());*/
-		    	  for (int y = 0; y < height; y += H_SUBIMG) {
+		    	  /*for (int y = 0; y < height; y += H_SUBIMG) {
 		    		  for (int x = 0; x < width; x += W_SUBIMG) {
 		    			  conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    		  }
-		    	  }
+		    	  }*/
 		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
+		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
 
 				   grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
 
-				   transfer_LCD_with_dma(&grayscale[16520],	//affiche l'image en niveau de gris sur le LCD
+				   transfer_LCD_with_dma(&grayscale[0],	//affiche l'image en niveau de gris sur le LCD
 				   									cam_get_xsize()>>1,
 				   									cam_get_ysize(),1);
 				   /*transfer_LCD_with_dma(&grayscale[0],	//affiche l'image en niveau de gris sur le LCD
@@ -182,7 +183,8 @@ int main()
 		    	  start_conv_grayscale = alt_timestamp();
 
 		    	  //grayscale sur une image 320x240 --> taille du LCD
-		    	  conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
+		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
+		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 
 		    	  end_conv_grayscale = alt_timestamp();
 
