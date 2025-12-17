@@ -39,7 +39,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  10 .debug_abbrev 00009d7e  00000000  00000000  0003ffb6  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_line   0000d19a  00000000  00000000  00049d34  2**0
+ 11 .debug_line   0000d19b  00000000  00000000  00049d34  2**0
                   CONTENTS, READONLY, DEBUGGING
  12 .debug_frame  00002708  00000000  00000000  00056ed0  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -2205,7 +2205,7 @@ void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
 			row_dst[x+2] 	= (result >> 16) & 0xFF;
 			row_dst[x+3] 	= (result >> 24) & 0xFF;
 		}*/
-		uint32_t result;
+		uint32_t result; //en 32 bits car 4 pixels grayscale  de 8bits
 
 		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[0] << 16) | row_src[1], ((uint32_t)row_src[2] << 16) | row_src[3]);
      d08:	21c0000b 	ldhu	r7,0(r4)
@@ -2218,13 +2218,13 @@ void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
 	uint32_t x,y;
 
 	for (y = 0; y < h_subimg; y++) {
-		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;
-		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;
+		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;			//src			 	= image pixel 16 bits rgb
+		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;		//grayscale_array 	= image pixel 8 bits
      d20:	d1a6d717 	ldw	r6,-25764(gp)
 			row_dst[x+2] 	= (result >> 16) & 0xFF;
 			row_dst[x+3] 	= (result >> 24) & 0xFF;
 		}*/
-		uint32_t result;
+		uint32_t result; //en 32 bits car 4 pixels grayscale  de 8bits
 
 		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[0] << 16) | row_src[1], ((uint32_t)row_src[2] << 16) | row_src[3]);
      d24:	434eb03a 	or	r7,r8,r13
@@ -2233,13 +2233,13 @@ void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
 	uint32_t x,y;
 
 	for (y = 0; y < h_subimg; y++) {
-		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;
-		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;
+		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;			//src			 	= image pixel 16 bits rgb
+		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;		//grayscale_array 	= image pixel 8 bits
      d2c:	3145883a 	add	r2,r6,r5
 			row_dst[x+2] 	= (result >> 16) & 0xFF;
 			row_dst[x+3] 	= (result >> 24) & 0xFF;
 		}*/
-		uint32_t result;
+		uint32_t result; //en 32 bits car 4 pixels grayscale  de 8bits
 
 		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[0] << 16) | row_src[1], ((uint32_t)row_src[2] << 16) | row_src[3]);
      d30:	38dbc0b2 	custom	2,r13,r7,r3
@@ -6700,8 +6700,8 @@ void transfer_LCD_with_dma(void *array,
 
 00003740 <main>:
 
-const int H_SUBIMG = 128; //nbre de pixels height de la subimage
-const int W_SUBIMG = 128; //nbre de pixels width de la subimage
+const int H_SUBIMG = 20; //nbre de pixels height de la subimage
+const int W_SUBIMG = 20; //nbre de pixels width de la subimage
 
 int main()
 {
@@ -7005,11 +7005,11 @@ int main()
     39a0:	07c00074 	movhi	ra,1
     39a4:	f9123404 	addi	r4,ra,18640
     39a8:	0005b640 	call	5b64 <puts>
-		    		  for (int x = 0; x < width; x += W_SUBIMG) {
-		    			  conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
+		    		  for (int x = 0; x < 240; x += W_SUBIMG) {
+		    			  conv_grayscale_with_subimg_MultBits(image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    		  }
 		    	  }*/
-		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
+		    	  //end_conv_grayscale = alt_timestamp();
 		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
     39ac:	03c05004 	movi	r15,320
     39b0:	a809883a 	mov	r4,r21
@@ -7020,6 +7020,7 @@ int main()
     39c4:	dd000215 	stw	r20,8(sp)
     39c8:	dcc00115 	stw	r19,4(sp)
     39cc:	0000ce40 	call	ce4 <conv_grayscale_with_subimg_MultBits>
+		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 
 				   grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
     39d0:	0002d0c0 	call	2d0c <get_grayscale_picture>
@@ -7031,8 +7032,8 @@ int main()
     39dc:	1025883a 	mov	r18,r2
 				   									cam_get_ysize(),1);
     39e0:	00008b00 	call	8b0 <cam_get_ysize>
-		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
+		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 
 				   grayscale = get_grayscale_picture();	//r�cup�re l'image en niveau de gris
 

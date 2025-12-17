@@ -29,8 +29,8 @@ alt_u32 end_conv_grayscale = 0;
 alt_u32 start_sobel_threshold = 0;
 alt_u32 end_sobel_threshold = 0;
 
-const int H_SUBIMG = 128; //nbre de pixels height de la subimage
-const int W_SUBIMG = 128; //nbre de pixels width de la subimage
+const int H_SUBIMG = 20; //nbre de pixels height de la subimage
+const int W_SUBIMG = 20; //nbre de pixels width de la subimage
 
 int main()
 {
@@ -95,8 +95,15 @@ int main()
 		    			  conv_grayscale_with_subimg( image, x, y, W_SUBIMG, H_SUBIMG, width, height);
 		    		  }
 		    	  }*/
-		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
+		    	  /*start_conv_grayscale = alt_timestamp();
+		    	  for (int y = 0; y < 340; y += H_SUBIMG) {
+		    		  for (int x = 0; x < 240; x += W_SUBIMG) {
+		    			  conv_grayscale_with_subimg_MultBits(image, x, y, W_SUBIMG, H_SUBIMG, width, height);
+		    		  }
+		    	  }*/
+		    	  //end_conv_grayscale = alt_timestamp();
 		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
+		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 
 				   grayscale = get_grayscale_picture();	//rï¿½cupï¿½re l'image en niveau de gris
 
@@ -174,16 +181,16 @@ int main()
 		    	  //Camera donne une image : 512x384   (width x height)
 		    	  //LCD affiche une image :  240x320   (width x height)
 
-		    	  //L'idée est de traiter une sous-image 320x240 de l'image de la camera
+		    	  //L'idï¿½e est de traiter une sous-image 240x320 de l'image de la camera
 
-		    	  //--> row = picture + y*width(512)  avec y de 0 à 320 --> on parcourt 320 lignes au lieu de 384
-		    	  //--> row[x] avec x de 0 à 240  --> on parcourt 240pixels/ligne au lieu de 520
+		    	  //--> row = picture + y*width(512)  avec y de 0 ï¿½ 320 --> on parcourt 320 lignes au lieu de 384
+		    	  //--> row[x] avec x de 0 ï¿½ 240  --> on parcourt 240pixels/ligne au lieu de 520
 
 
 		    	  start_conv_grayscale = alt_timestamp();
 
 		    	  //grayscale sur une image 320x240 --> taille du LCD
-		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height);
+		    	  conv_grayscale_with_subimg_MultBits(image, 0, 0, 240, 320, width, height); //width et height == dimension image camera
 		    	  //conv_grayscale_with_subimg(image, 0, 0, 240, 320, width, height);
 
 		    	  end_conv_grayscale = alt_timestamp();
@@ -221,10 +228,10 @@ int main()
 
 				  //sobel_complete(grayscale, 128);				//applique le filtre de sobel sur l'image (grayscale)
 
-								  /*for (int y = 0; y < height; y += H_SUBIMG) {
-									  for (int x = 0; x < width; x += W_SUBIMG) {
-										  sobel_complete_with_subimg(grayscale, 128, x, y, W_SUBIMG, H_SUBIMG);
-									  }
+					/*for (int y = 0; y < height; y += H_SUBIMG) {
+						for (int x = 0; x < width; x += W_SUBIMG) {
+							sobel_complete_with_subimg(grayscale, 128, x, y, W_SUBIMG, H_SUBIMG);
+						}
 					}*/
 
 		    	  /*transfer_LCD_with_dma(&grayscale[16520], 		//affiche l'image filtre sur le LCD

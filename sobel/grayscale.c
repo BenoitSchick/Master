@@ -60,24 +60,24 @@ void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
 	uint32_t x,y;
 
 	for (y = 0; y < h_subimg; y++) {
-		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;
-		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;
+		const unsigned short *row_src = src + (y0_subimg + y) * width + x0_subimg;			//src			 	= image pixel 16 bits rgb
+		unsigned char *row_dst = grayscale_array + (y0_subimg + y) * width + x0_subimg;		//grayscale_array 	= image pixel 8 bits
 
 		/*for (x = 0; x < w_subimg; x += 4) {
 
-			//construction de 2 entr�es 32 bits avec 4 pixels RGB 16 bits
-			uint32_t dataa = ((uint32_t)row_src[x] << 16) 	| (uint32_t)row_src[x+1];
+			//construction de 2 entr�es 32 bits avec 4 pixels RGB 16 bits
+			uint32_t dataa = ((uint32_t)row_src[x] << 16) 	| (uint32_t)row_src[x+1];	//row_src en 16 bits --> caster en 32 bits !
 			uint32_t datab = ((uint32_t)row_src[x+2] << 16) | (uint32_t)row_src[x+3];
 
 			uint32_t result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(dataa, datab);
 
-			//Extraction de 4 pixels grayscale 8 bits
+			//Extraction de 4 pixels grayscale 8 bits --> décalage + mask pour récuperer pixel grayscale
 			row_dst[x]   	=  result        & 0xFF; //mask 8bits
 			row_dst[x+1] 	= (result >> 8)  & 0xFF;
 			row_dst[x+2] 	= (result >> 16) & 0xFF;
 			row_dst[x+3] 	= (result >> 24) & 0xFF;
 		}*/
-		uint32_t result;
+		uint32_t result; //en 32 bits car 4 pixels grayscale  de 8bits
 
 		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[0] << 16) | row_src[1], ((uint32_t)row_src[2] << 16) | row_src[3]);
 		row_dst[0] = result & 0xFF; row_dst[1] = (result >> 8) & 0xFF; row_dst[2] = (result >> 16) & 0xFF; row_dst[3] = (result >> 24) & 0xFF;
@@ -258,6 +258,7 @@ void conv_grayscale_with_subimg_MultBits(void *src_picture, int x0_subimg,
 
 		result = ALT_CI_CI_GRAYSCALE_MULTIBITS_0(((uint32_t)row_src[236] << 16) | row_src[237], ((uint32_t)row_src[238] << 16) | row_src[239]);
 		row_dst[236] = result & 0xFF; row_dst[237] = (result >> 8) & 0xFF; row_dst[238] = (result >> 16) & 0xFF; row_dst[239] = (result >> 24) & 0xFF;
+
 	}
 }
 

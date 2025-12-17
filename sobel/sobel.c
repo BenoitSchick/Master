@@ -172,7 +172,7 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 		//unsigned char *dst_next = &sobel_result[y_plus1];
 
 		unsigned char *dst = &sobel_result[y0]; //selectionne la ligne y
-											//	--> parcourt les pixels de x_start à x_end de la ligne y
+											//	--> parcourt les pixels de x_start ï¿½ x_end de la ligne y
 
 		for (x = x_start ; x < x_end ; x+=1) {
 
@@ -181,6 +181,7 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 			x_plus1  = x + 1;
 
 
+			//src = pixel grayscale 8bits --> on peut calcul sobel de 1 pixels en 1 CI
 			uint32_t dataa = 	(((uint32_t)(row_ym1[x_minus1])) << 24) |
 								(((uint32_t)(row_ym1[x_plus1])) << 16) |
 								(((uint32_t)(row_y0[x_minus1])) << 8)  |
@@ -191,7 +192,7 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 								(((uint32_t)row_ym1[x])   << 8)  |
 								((uint32_t)row_yp1[x]);
 
-			dst[x] = ALT_CI_CI_SOBEL_0(dataa, datab);
+			dst[x] = ALT_CI_CI_SOBEL_0(dataa, datab); //pas d'interpolation realise, on atteint les specs sans
 
 
 			//convolution matrice de sobel avec image
@@ -223,7 +224,7 @@ void sobel_complete_with_subimg(unsigned char *source, short threshold,
 
 			/*if(y != 0) {
 				if(x != 0) {
-					unsigned char val_inter =
+					unsigned char val_inter =								//moyenne intensite des pixels voisins
 							(sobel_result[(y-2)*sobel_width + x-2] +
 							sobel_result[y*sobel_width + x-2] +
 							sobel_result[(y-2)*sobel_width + x] +

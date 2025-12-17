@@ -86,6 +86,6 @@ begin
     g2      <= rgb_to_grayscale(pix2);
     g3      <= rgb_to_grayscale(pix3);
 	
-    result  <= std_logic_vector(g3 & g2 & g1 & g0); 
+    result  <= std_logic_vector(g3 & g2 & g1 & g0); --en 32 bits car 4 pixels grayscale de 8bits
 
 end architecture rtl;
